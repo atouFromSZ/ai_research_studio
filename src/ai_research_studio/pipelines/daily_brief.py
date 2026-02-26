@@ -4,6 +4,7 @@ from ai_research_studio.collectors.http_collector import fetch_market_snapshot
 from ai_research_studio.collectors.news_collector import fetch_rss_titles
 from ai_research_studio.outputs.markdown_writer import write_markdown
 from ai_research_studio.settings import settings
+from ai_research_studio.summarizers.llm_summary import maybe_generate_llm_summary
 from ai_research_studio.summarizers.rule_based_summary import build_rule_based_summary
 from ai_research_studio.utils.news_classifier import classify_news_items
 
@@ -119,7 +120,12 @@ def build_daily_brief_markdown() -> str:
 
     overview_section = build_overview(major_snapshot, watchlist_snapshot)
     summary_section = build_summary_skeleton(major_snapshot, watchlist_snapshot, all_news_items)
-    ai_summary = build_rule_based_summary(major_snapshot, watchlist_snapshot, all_news_items)
+
+    fallback_summary = build_rule_based_summary(major_snapshot, watchlist_snapshot, all_news_items)
+    llm_summary = maybe_generate_llm_summary(major_snapshot, watchlist_snapshot, all_news_items)
+
+    final_ai_summary = llm_summary or fallback_summary
+    summary_source = "LLM" if llm_summary else "Rule-based fallback"
 
     major_section = format_market_lines(major_snapshot)
     watchlist_section = format_market_lines(watchlist_snapshot)
@@ -140,7 +146,9 @@ def build_daily_brief_markdown() -> str:
 
 ## AI Summary
 
-{ai_summary}
+- Summary Source: **{summary_source}**
+
+{final_ai_summary}
 
 ## Major Assets
 
@@ -156,11 +164,11 @@ def build_daily_brief_markdown() -> str:
 
 ## Notes
 
-This report combines live Binance market data with classified public RSS headlines and a rule-based summary module.
+This report combines live Binance market data with classified public RSS headlines and a pluggable AI summary layer.
 
 ## Next Step
 
-- Replace rule-based summary with real LLM summary
+- Connect a real LLM provider via .env
 - Add better macro source redundancy
 - Refine headline classification rules
 - Add scheduled automation
