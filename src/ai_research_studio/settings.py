@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     major_symbols: str = "BTCUSDT,ETHUSDT,SOLUSDT"
     watchlist_symbols: str = "BNBUSDT,DOGEUSDT,XRPUSDT"
 
+    reuters_world_rss: str = "https://feeds.reuters.com/Reuters/worldNews"
+    coindesk_rss: str = "https://www.coindesk.com/arc/outboundfeeds/rss/"
+    rss_item_limit: int = 5
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

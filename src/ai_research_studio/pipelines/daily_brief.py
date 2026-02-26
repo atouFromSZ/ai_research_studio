@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from ai_research_studio.collectors.http_collector import fetch_market_snapshot
+from ai_research_studio.collectors.news_collector import fetch_rss_titles
 from ai_research_studio.outputs.markdown_writer import write_markdown
 from ai_research_studio.settings import settings
 
@@ -47,10 +48,20 @@ def build_overview(major_snapshot: list[dict], watchlist_snapshot: list[dict]) -
     return "\n".join(
         [
             f"- Strongest asset today: **{strongest['symbol']}** ({format_change(strongest['price_change_percent'])})",
-            f"- Weakest asset today: **{weakest['symbol']}** ({format_change(weakest['price_change_percent'])})",
+            f"- Lowest performer in tracked assets: **{weakest['symbol']}** ({format_change(weakest['price_change_percent'])})",
             f"- Total tracked symbols: **{len(combined)}**",
         ]
     )
+
+
+def format_news_block(title: str, items: list[dict]) -> str:
+    if not items:
+        return f"### {title}\n- No items available."
+
+    lines = [f"### {title}"]
+    for item in items:
+        lines.append(f"- [{item['title']}]({item['link']})")
+    return "\n".join(lines)
 
 
 def build_daily_brief_markdown() -> str:
@@ -59,9 +70,19 @@ def build_daily_brief_markdown() -> str:
     major_snapshot = fetch_market_snapshot(settings.major_symbol_list)
     watchlist_snapshot = fetch_market_snapshot(settings.watchlist_symbol_list)
 
+    reuters_items = fetch_rss_titles(settings.reuters_world_rss, settings.rss_item_limit)
+    coindesk_items = fetch_rss_titles(settings.coindesk_rss, settings.rss_item_limit)
+
     overview_section = build_overview(major_snapshot, watchlist_snapshot)
     major_section = format_market_lines(major_snapshot)
     watchlist_section = format_market_lines(watchlist_snapshot)
+
+    macro_news_section = "\n\n".join(
+        [
+            format_news_block("Reuters World", reuters_items),
+            format_news_block("CoinDesk", coindesk_items),
+        ]
+    )
 
     markdown = f"""# Daily Brief
 
@@ -80,14 +101,18 @@ def build_daily_brief_markdown() -> str:
 
 {watchlist_section}
 
+## Macro / Headlines
+
+{macro_news_section}
+
 ## Notes
 
-This report is generated from live Binance market data and grouped into majors and watchlist sections.
+This report combines live Binance market data with public RSS headlines.
 
 ## Next Step
 
-- Add macro data section
-- Add crypto headlines section
+- Add more curated macro and crypto sources
+- Add headline classification
 - Add LLM-generated summary
 - Add scheduled automation
 """
