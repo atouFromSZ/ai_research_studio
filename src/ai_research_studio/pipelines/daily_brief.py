@@ -1,10 +1,10 @@
-id="zppwl2"
 from datetime import datetime
 
 from ai_research_studio.collectors.http_collector import fetch_market_snapshot
 from ai_research_studio.collectors.news_collector import fetch_rss_titles
 from ai_research_studio.outputs.markdown_writer import write_markdown
 from ai_research_studio.settings import settings
+from ai_research_studio.summarizers.rule_based_summary import build_rule_based_summary
 from ai_research_studio.utils.news_classifier import classify_news_items
 
 
@@ -118,10 +118,12 @@ def build_daily_brief_markdown() -> str:
     all_news_items = reuters_items + coindesk_items
 
     overview_section = build_overview(major_snapshot, watchlist_snapshot)
+    summary_section = build_summary_skeleton(major_snapshot, watchlist_snapshot, all_news_items)
+    ai_summary = build_rule_based_summary(major_snapshot, watchlist_snapshot, all_news_items)
+
     major_section = format_market_lines(major_snapshot)
     watchlist_section = format_market_lines(watchlist_snapshot)
     news_section = build_news_section(all_news_items)
-    summary_section = build_summary_skeleton(major_snapshot, watchlist_snapshot, all_news_items)
 
     markdown = f"""# Daily Brief
 
@@ -135,6 +137,10 @@ def build_daily_brief_markdown() -> str:
 ## Summary Skeleton
 
 {summary_section}
+
+## AI Summary
+
+{ai_summary}
 
 ## Major Assets
 
@@ -150,13 +156,13 @@ def build_daily_brief_markdown() -> str:
 
 ## Notes
 
-This report combines live Binance market data with classified public RSS headlines.
+This report combines live Binance market data with classified public RSS headlines and a rule-based summary module.
 
 ## Next Step
 
+- Replace rule-based summary with real LLM summary
 - Add better macro source redundancy
 - Refine headline classification rules
-- Add LLM-generated summary
 - Add scheduled automation
 """
     return markdown
