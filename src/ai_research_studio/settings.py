@@ -9,7 +9,8 @@ class Settings(BaseSettings):
     request_timeout: int = 10
 
     binance_base_url: str = "https://api.binance.com"
-    market_symbols: str = "BTCUSDT,ETHUSDT,SOLUSDT"
+    major_symbols: str = "BTCUSDT,ETHUSDT,SOLUSDT"
+    watchlist_symbols: str = "BNBUSDT,DOGEUSDT,XRPUSDT"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -33,9 +34,17 @@ class Settings(BaseSettings):
     def daily_reports_dir(self) -> Path:
         return self.reports_dir / self.report_subdir
 
+    @staticmethod
+    def _parse_symbols(raw: str) -> list[str]:
+        return [symbol.strip().upper() for symbol in raw.split(",") if symbol.strip()]
+
     @property
-    def symbol_list(self) -> list[str]:
-        return [symbol.strip().upper() for symbol in self.market_symbols.split(",") if symbol.strip()]
+    def major_symbol_list(self) -> list[str]:
+        return self._parse_symbols(self.major_symbols)
+
+    @property
+    def watchlist_symbol_list(self) -> list[str]:
+        return self._parse_symbols(self.watchlist_symbols)
 
 
 settings = Settings()
