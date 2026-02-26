@@ -6,8 +6,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     project_name: str = "AI Research Studio"
     report_subdir: str = "daily"
-    test_api_url: str = "https://httpbin.org/get"
     request_timeout: int = 10
+
+    binance_base_url: str = "https://api.binance.com"
+    market_symbols: str = "BTCUSDT,ETHUSDT,SOLUSDT"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -30,6 +32,10 @@ class Settings(BaseSettings):
     @property
     def daily_reports_dir(self) -> Path:
         return self.reports_dir / self.report_subdir
+
+    @property
+    def symbol_list(self) -> list[str]:
+        return [symbol.strip().upper() for symbol in self.market_symbols.split(",") if symbol.strip()]
 
 
 settings = Settings()
