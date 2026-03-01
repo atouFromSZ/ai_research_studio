@@ -2,6 +2,7 @@ id="6l5m1u"
 from typing import Any
 
 
+# 简单基于关键词的新闻分类规则，可根据需要继续扩展或微调。
 CATEGORY_KEYWORDS: dict[str, list[str]] = {
     "Macro": [
         "fed",
@@ -67,6 +68,7 @@ CATEGORY_KEYWORDS: dict[str, list[str]] = {
 
 
 def classify_headline(title: str) -> str:
+    """根据标题中是否包含关键词，把新闻粗略映射到一个主题类别。"""
     normalized = title.lower()
 
     for category, keywords in CATEGORY_KEYWORDS.items():
@@ -77,6 +79,7 @@ def classify_headline(title: str) -> str:
 
 
 def classify_news_items(items: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """去重后按类别聚合新闻条目，返回按类别分组的字典。"""
     grouped: dict[str, list[dict[str, Any]]] = {
         "Macro": [],
         "Policy / Regulation": [],

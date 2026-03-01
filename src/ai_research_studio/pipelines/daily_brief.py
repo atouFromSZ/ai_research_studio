@@ -168,10 +168,10 @@ This report combines live Binance market data with classified public RSS headlin
 
 ## Next Step
 
-- Connect a real LLM provider via .env
+- Connect OpenClaw task orchestration
+- Add bot notification layer
 - Add better macro source redundancy
 - Refine headline classification rules
-- Add scheduled automation
 """
     return markdown
 

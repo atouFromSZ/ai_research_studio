@@ -2,6 +2,7 @@ from ai_research_studio.utils.news_classifier import classify_news_items
 
 
 def format_change_label(change: float) -> str:
+    """把数值涨跌幅转成自然语言描述，便于拼接到中文句子中。"""
     if change > 0:
         return f"上涨 {change:.2f}%"
     if change < 0:
@@ -14,6 +15,7 @@ def build_rule_based_summary(
     watchlist_snapshot: list[dict],
     all_news_items: list[dict],
 ) -> str:
+    """不依赖 LLM，仅基于简单规则构造一段中文市场摘要。"""
     combined = major_snapshot + watchlist_snapshot
 
     if not combined:

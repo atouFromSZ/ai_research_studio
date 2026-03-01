@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     rss_item_limit: int = 5
 
     use_llm_summary: bool = False
+    llm_provider: str = "openai_compatible"
     openai_api_key: str | None = None
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"
