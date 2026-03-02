@@ -4,6 +4,9 @@ from datetime import datetime
 
 from ai_research_studio.core.domain.outputs import BriefOutput
 from ai_research_studio.settings import settings
+from ai_research_studio.shared.collectors.macro_market_data import (
+    fetch_macro_market_snapshot,
+)
 from ai_research_studio.shared.collectors.market_data import fetch_market_snapshot
 from ai_research_studio.shared.collectors.news_feed import fetch_rss_titles
 from ai_research_studio.shared.renderers.markdown import format_market_snapshot_lines
@@ -13,6 +16,7 @@ from ai_research_studio.shared.storage.markdown_store import (
     write_markdown,
 )
 from ai_research_studio.workflows.daily_brief.tasks import (
+    build_macro_market_section,
     build_news_section,
     build_overview,
     build_rule_based_summary,
@@ -43,11 +47,42 @@ def extract_markdown_section(content: str, heading: str) -> str | None:
     return text or None
 
 
+def safe_build_macro_market_section(
+    *,
+    crypto_market_items: list[dict] | None = None,
+    macro_market_items: list[dict] | None = None,
+    news_items: list[dict] | None = None,
+    calendar_items: list[dict] | None = None,
+    generated_at: str | None = None,
+) -> str:
+    """
+    对 macro_market 引擎做容错包装，避免其异常影响 daily_brief 主链路。
+    """
+    try:
+        return build_macro_market_section(
+            crypto_market_items=crypto_market_items,
+            macro_market_items=macro_market_items,
+            news_items=news_items,
+            calendar_items=calendar_items,
+            generated_at=generated_at,
+        )
+    except Exception as exc:
+        return "\n".join(
+            [
+                "## Macro Market",
+                "",
+                "- Macro market section unavailable.",
+                f"- Error: `{type(exc).__name__}: {exc}`",
+            ]
+        )
+
+
 def build_daily_brief_markdown() -> str:
     now = datetime.now()
 
     major_snapshot = fetch_market_snapshot(settings.major_symbol_list)
     watchlist_snapshot = fetch_market_snapshot(settings.watchlist_symbol_list)
+    macro_market_items = fetch_macro_market_snapshot(settings.macro_symbol_list)
 
     reuters_items = fetch_rss_titles(settings.reuters_world_rss, settings.rss_item_limit)
     coindesk_items = fetch_rss_titles(settings.coindesk_rss, settings.rss_item_limit)
@@ -65,6 +100,14 @@ def build_daily_brief_markdown() -> str:
     major_section = format_market_snapshot_lines(major_snapshot)
     watchlist_section = format_market_snapshot_lines(watchlist_snapshot)
     news_section = build_news_section(all_news_items)
+
+    macro_market_section = safe_build_macro_market_section(
+        crypto_market_items=major_snapshot + watchlist_snapshot,
+        macro_market_items=macro_market_items,
+        news_items=all_news_items,
+        calendar_items=None,
+        generated_at=now.isoformat(),
+    )
 
     markdown = f"""# Daily Brief
 
@@ -84,6 +127,8 @@ def build_daily_brief_markdown() -> str:
 - Summary Source: **{summary_source}**
 
 {final_ai_summary}
+
+{macro_market_section}
 
 ## Major Assets
 

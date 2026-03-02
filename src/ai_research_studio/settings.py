@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     major_symbols: str = "BTCUSDT,ETHUSDT,SOLUSDT"
     watchlist_symbols: str = "BNBUSDT,DOGEUSDT,XRPUSDT"
 
+    # macro_market v1 使用的宏观资产列表
+    macro_symbols: str = "DXY,SPX,NDX,US10Y,US2Y"
+
     reuters_world_rss: str = "https://feeds.reuters.com/Reuters/worldNews"
     coindesk_rss: str = "https://www.coindesk.com/arc/outboundfeeds/rss/"
     rss_item_limit: int = 5
@@ -22,6 +25,9 @@ class Settings(BaseSettings):
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"
     llm_timeout: int = 30
+
+    # FRED API key，用于获取宏观市场序列
+    fred_api_key: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -56,6 +62,10 @@ class Settings(BaseSettings):
     @property
     def watchlist_symbol_list(self) -> list[str]:
         return self._parse_symbols(self.watchlist_symbols)
+
+    @property
+    def macro_symbol_list(self) -> list[str]:
+        return self._parse_symbols(self.macro_symbols)
 
 
 settings = Settings()
