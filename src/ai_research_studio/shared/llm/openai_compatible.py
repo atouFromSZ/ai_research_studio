@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 import requests
@@ -40,8 +42,6 @@ class OpenAICompatibleClient(BaseLLMClient):
             )
             response.raise_for_status()
             data = response.json()
-
-            ##print("LLM raw response keys:", data.keys())
 
             content = data["choices"][0]["message"]["content"].strip()
             return content or None

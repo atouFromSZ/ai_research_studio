@@ -1,4 +1,7 @@
-#!/bin/zsh
-set -e
-cd /Users/liulihang/studio/projects/ai_research_studio
-poetry run ai-research-studio daily-brief
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+source .venv/bin/activate
+PYTHONPATH=src python -m ai_research_studio.cli daily-brief

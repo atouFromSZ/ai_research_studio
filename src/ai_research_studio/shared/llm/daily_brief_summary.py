@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from typing import Any
 
-from ai_research_studio.llm.openai_compatible import build_llm_client
-from ai_research_studio.prompts.daily_brief_prompt import build_daily_brief_messages
 from ai_research_studio.settings import settings
+from ai_research_studio.shared.llm.daily_brief_prompt import build_daily_brief_messages
+from ai_research_studio.shared.llm.openai_compatible import build_llm_client
 
 
-def maybe_generate_llm_summary(
+def maybe_generate_daily_brief_llm_summary(
     major_snapshot: list[dict[str, Any]],
     watchlist_snapshot: list[dict[str, Any]],
     news_items: list[dict[str, Any]],

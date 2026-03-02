@@ -1,6 +1,6 @@
 ## 
 ##     代码的核心流程
-##     poetry run ai-research-studio daily-brief
+## poetry run ai-research-studio daily-brief
 ## cli.py
 ## run_daily_brief()  
 ## pipelines/daily_brief.py
