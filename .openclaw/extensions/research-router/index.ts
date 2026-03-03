@@ -5,9 +5,10 @@ import * as os from "os";
 function runPythonCommand(commandText: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const projectRoot = path.join(os.homedir(), "studio/projects/ai_research_studio");
+    const pythonPath = path.join(projectRoot, ".venv", "bin", "python");
 
     const child = spawn(
-      "python3",
+      pythonPath,
       ["-m", "ai_research_studio.cli_router", commandText],
       {
         cwd: projectRoot,

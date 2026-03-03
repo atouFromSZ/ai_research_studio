@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+from ai_research_studio.engines.macro_market.handlers.view_brief import (
+    view_macro_market_brief,
+)
+from ai_research_studio.engines.project_watch.workflows.generate_project_brief import (
+    generate_project_brief,
+)
 from ai_research_studio.shared.renderers.telegram import render_brief_output_for_telegram
-from ai_research_studio.workflows.telegram_commands.intents import ParsedIntent
 from ai_research_studio.workflows.daily_brief.orchestrator import (
     generate_daily_brief,
-    view_latest_daily_brief,
     summarize_latest_daily_brief,
+    view_latest_daily_brief,
 )
-from ai_research_studio.engines.macro_market.workflows.generate_brief import generate_macro_brief
-from ai_research_studio.engines.project_watch.workflows.generate_project_brief import generate_project_brief
+from ai_research_studio.workflows.telegram_commands.intents import ParsedIntent
 
 
 def parse_intent(text: str) -> ParsedIntent:
@@ -50,7 +54,7 @@ def route_telegram_command(text: str) -> str:
             return render_brief_output_for_telegram(result)
 
         if intent.name == "view_macro_brief":
-            result = generate_macro_brief()
+            result = view_macro_market_brief()
             return render_brief_output_for_telegram(result)
 
         if intent.name == "view_project_status":
